@@ -14,11 +14,15 @@ namespace Stepin
         int n = 10;
         int m = 10;
         List<int> bestWay = new List<int>();
-        double bestLength = double.MaxValue;
+        double bestLength = -1;
 
 
-        double alpha, beta, e, Q, defaultTrail = 1;
+        double alpha = 0.5;
+        double beta = 0.5;
+        double defaultTrail = 1;
+        double evaporation = 0.5;
         public double[][] Distances;
+        double Q = 100;
         double[][] trails;
 
         Random random = new Random();
@@ -30,6 +34,7 @@ namespace Stepin
 
             public double Length { get; private set; } = -1;
             public int CurTown { get; private set; } = -1;
+            public int StartTown { get; private set; } = -1;
 
             List<int> _way = new List<int>();
             bool[] _visited;
@@ -37,14 +42,31 @@ namespace Stepin
             {
                 _parent = parent;
                 CurTown = startTown;
+                StartTown = startTown;
                 _visited = new bool[_parent.Distances.Length];
+                _visited[StartTown] = true;
+                _way.Add(StartTown);
             }
 
 
-            public void GoTo(int townNumber)
+            private void GoTo(int town)
             {
-                _way.Add(townNumber);
-                Length += _parent.Distances[CurTown][townNumber];
+                if (town == -1 || _parent.Distances[CurTown][town] == -1)
+                {
+                    Length = -1;
+                    return;
+                }
+                _visited[town] = true;
+                _way.Add(town);
+                Length += _parent.Distances[CurTown][town];
+            }
+            public void GoToNext()
+            {
+                GoTo(NextTown);
+            }
+            public void GoToStart()
+            {
+                GoTo(StartTown);
             }
             public int NextTown
             {
@@ -58,7 +80,7 @@ namespace Stepin
 
                     List<int> allowed = new List<int>();
                     for (int j = 0; j < n; j++)
-                        if (i != j && !_visited[j])
+                        if (i != j && _parent.Distances[i][j] != -1 && !_visited[j])
                             allowed.Add(j);
 
                     foreach (int j in allowed)
@@ -80,18 +102,42 @@ namespace Stepin
                             return j;
                     }
 
-                    throw new Exception("No town to move next");
+                    return -1;
+                    //throw new Exception("No town to move next");
                 }
             }
         }
 
 
-
+        void fillRandom()
+        {
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    if (i == j)
+                    {
+                        Distances[i][j] = 0;
+                        continue;
+                    }
+                    int t = random.Next();
+                    if (t % 2 == 0)
+                    {
+                        Distances[i][j] = -1;
+                    }
+                    else
+                    {
+                        int d = random.Next(1000);
+                        Distances[i][j] = d;
+                    }
+                }
+            }
+        }
         public void solve()
         {
-            double[][] Distance = CreateArray(n, n);
-            double[][] trails = CreateArray(n, n, defaultTrail);
-
+            Distances = CreateArray(n, n);
+            trails = CreateArray(n, n, defaultTrail);
+            fillRandom();
             for (int t = 0; t < max_iteration; t++)
             {
                 ants.Clear();
@@ -100,19 +146,39 @@ namespace Stepin
 
                 for (int k = 0; k < m; k++)
                 {
-                    ants[k].GoTo(ants[k].NextTown);
+                    for (int town = 0; town < n - 1; town++)
+                        ants[k].GoToNext();
+                    ants[k].GoToStart();
                 }
-                for (int i = 0; i < n; i++)
-                {
-                    for (int j = 0; j < n; j++)
-                    {
+                UpdateTrails();
+            }
+        }
 
-                    }
+        void UpdateTrails()
+        {
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < n; j++)
+                    trails[i][j] *= evaporation;
+
+            foreach (Ant ant in ants)
+            {
+                var way = ant.Way;
+                double dPh = Q / ant.Length;
+                //1 -> 2 -> 3 -> 4 -> 1
+                for (int i = 0; i < way.Count - 1; i++)
+                    trails[way[i]][way[i + 1]] += dPh;
+            }
+        }
+        void UpdateBest()
+        {
+            foreach (Ant ant in ants)
+            {
+                if ((bestLength == -1 && ant.Length != -1) || (bestLength != -1 && ant.Length < bestLength))
+                {
+                    bestLength = ant.Length;
+                    bestWay = ant.Way;
                 }
             }
-
-
-            Console.WriteLine();
         }
         static double[][] CreateArray(int n, int m, double defaultValue = 0)
         {
