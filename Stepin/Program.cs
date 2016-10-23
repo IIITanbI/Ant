@@ -72,7 +72,7 @@ namespace Stepin
     }
     class AntProblem
     {
-        int max_iteration = 10000;
+        int max_iteration = 1000000;
 
         int n = 0;
         int m = 0;
@@ -80,7 +80,7 @@ namespace Stepin
         double bestLength = -1;
 
 
-        double alpha = 0.5;
+        double alpha = 0.7;
         double beta = 0.5;
         double defaultTrail = 1;
         double evaporation = 0.5;
@@ -123,8 +123,6 @@ namespace Stepin
 
             public Ant(AntProblem parent, int startTown)
             {
-
-
                 _parent = parent;
                 CurTown = startTown;
                 StartTown = startTown;
@@ -333,14 +331,16 @@ namespace Stepin
         }
         static void Main(string[] args)
         {
-            string folder = @"C:\Users\1\Downloads\ALL_tsp";
-            string file = "a280";
+            //string folder = @"C:\Users\1\Downloads\ALL_tsp";
+            //string file = "a280";
             //var distances = ParseDistances(Path.Combine(folder, file + ".tsp"));
-            var distances = RandomDst(5);
+            var distances = RandomDst(10);
             // var trueSolve = ParseSolve(Path.Combine(folder, file + ".opt.tour"));
             var trueSolve = StupidSolve(distances);
-            PrintMatrix(distances);
+            //PrintMatrix(distances);
             PrintMatrixInFile(distances, "file.txt");
+            Console.WriteLine("Start");
+
             Stopwatch sw = Stopwatch.StartNew();
             var antProblem = new AntProblem();
             antProblem.Distances = distances;
