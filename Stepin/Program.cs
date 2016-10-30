@@ -72,7 +72,7 @@ namespace Stepin
     }
     class AntProblem
     {
-        int max_iteration = 1000000;
+        int max_iteration = 10000;
 
         int n = 0;
         int m = 0;
@@ -80,12 +80,12 @@ namespace Stepin
         double bestLength = -1;
 
 
-        double alpha = 0.7;
-        double beta = 0.5;
+        double alpha = 0.6;
+        double beta = 0.3;
         double defaultTrail = 1;
         double evaporation = 0.5;
         public double[][] Distances;
-        double Q = 100;
+        double Q = 300;
         double[][] trails;
 
         Random random = new Random();
@@ -130,7 +130,6 @@ namespace Stepin
                 _visited[StartTown] = true;
                 _way.Add(StartTown);
             }
-
 
             private void GoTo(int town)
             {
@@ -334,7 +333,7 @@ namespace Stepin
             //string folder = @"C:\Users\1\Downloads\ALL_tsp";
             //string file = "a280";
             //var distances = ParseDistances(Path.Combine(folder, file + ".tsp"));
-            var distances = RandomDst(10);
+            var distances = RandomDst(8);
             // var trueSolve = ParseSolve(Path.Combine(folder, file + ".opt.tour"));
             var trueSolve = StupidSolve(distances);
             //PrintMatrix(distances);
