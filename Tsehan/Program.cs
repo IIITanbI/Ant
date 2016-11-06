@@ -201,31 +201,15 @@ namespace Tsehan
 
         public List<Solution> SolveStupid(List<Task> tasks, List<Machine> machines)
         {
-            List<Solution> results = new List<Solution>();
             List<Solution> bestResults = new List<Solution>();
 
             var permutates = tasks.Permute().Select(ie => ie.ToList()).ToList();
-            int id = 0;
             foreach (var perm in permutates)
             {
-                id++;
                 var res = _solve(perm, machines);
-                results.Add(res);
-
-                if (bestResults.Count == 0)
-                    bestResults.Add(res);
-                else
-                {
-                    int cmp = res.CompareTo(bestResults.First());
-                    if (cmp == 1)
-                        continue;
-                    if (cmp == -1)
-                        bestResults.Clear();
-                    bestResults.Add(res);
-                }
+                _updateResults(bestResults, res);
             }
 
-            //results.Sort();
             return bestResults;
         }
         public List<Solution> SolveHeuristic(List<Task> tasks, List<Machine> machines)
@@ -245,9 +229,18 @@ namespace Tsehan
                 tasks.ForEach(t => t[m1] += t[machines[i]]);
                 tasks.ForEach(t => t[m2] += t[machines[m - 1 - i]]);
 
-                var sorted = _johnsonSort(tasks, m1, m2);
-                Solution res = _solve(sorted, machines);
-                _updateResults(bestResults, res);
+                var sortedCombintaions = _johnsonSort(tasks, m1, m2);
+
+                var temp = _solve(sortedCombintaions[0], machines);
+                foreach (var combintation in sortedCombintaions)
+                {
+                    Solution res = _solve(combintation, machines);
+                    if (temp.CompareTo(res) != 0)
+                    {
+                        Console.WriteLine();
+                    }
+                    _updateResults(bestResults, res);
+                }
             }
 
             tasks.ForEach(t => t.RemoveMachine(m1));
@@ -255,10 +248,18 @@ namespace Tsehan
 
             return bestResults;
         }
-        public Solution SolveJohnson(List<Task> tasks, Machine m1, Machine m2)
+        public List<Solution> SolveJohnson(List<Task> tasks, Machine m1, Machine m2)
         {
-            var a = _johnsonSort(tasks, m1, m2);
-            return _solve(a, new List<Machine>() { m1, m2 });
+            List<Solution> bestResults = new List<Solution>();
+
+            var sortedCombintaions = _johnsonSort(tasks, m1, m2);
+            foreach (var combination in sortedCombintaions)
+            {
+                var res = _solve(combination, new List<Machine>() { m1, m2 });
+                _updateResults(bestResults, res);
+            }
+
+            return bestResults;
         }
 
         public Solution _solve(List<Task> tasks, List<Machine> machines)
@@ -303,7 +304,7 @@ namespace Tsehan
             machines.ForEach(m => dl.Add(_computeDowntime(m.DowntimeList)));
             return new Solution() { Tasks = tasks, Downtime = _computeDowntime(downtimeList), AllTime = curTime, DowntimeList = dl };
         }
-        private List<Task> _johnsonSort(List<Task> tasks, Machine m1, Machine m2)
+        private List<List<Task>> _johnsonSort(List<Task> tasks, Machine m1, Machine m2)
         {
             var _tasks = tasks.ToList();
             _tasks.Sort((x, y) => Math.Min(x[m1], x[m2]).CompareTo(Math.Min(y[m1], y[m2])));
@@ -311,9 +312,57 @@ namespace Tsehan
             for (int i = 0; i < _tasks.Count; ++i)
                 (_tasks[i][m1] <= _tasks[i][m2] ? a : b).Add(_tasks[i]);
             b.Reverse();
-            a.AddRange(b);
 
-            return a;
+            Func<List<Task>, Machine, List<List<Task>>> generate = (list, macnhine) =>
+            {
+                List<List<Task>> results = new List<List<Task>>();
+                var _originalCopy = list.ToList();
+                results.Add(_originalCopy);
+
+                if (_originalCopy.Count == 0)
+                    return results;
+
+                int current = _originalCopy[0][macnhine];
+                int count = 1;
+                for (int i = 1; i <= _originalCopy.Count; i++)
+                {
+                    if (i == _originalCopy.Count || _originalCopy[i][macnhine] != current)
+                    {
+                        int from = i - count;
+                        var range = _originalCopy.GetRange(from, count);
+                        var permutates = range.Permute().Select(ie => ie.ToList()).ToList();
+
+                        List<List<Task>> temp = new List<List<Task>>();
+                        foreach (var original in results)
+                        {
+                            foreach(var permute in permutates)
+                            {
+                                var copy = original.ToList();
+                                copy.RemoveRange(from, count);
+                                copy.InsertRange(from, permute);
+                                temp.Add(copy);
+                            }
+                        }
+                        results.Clear();
+                        results.AddRange(temp);
+
+                        if (i == _originalCopy.Count)
+                            break;
+
+                        current = _originalCopy[i][macnhine];
+                        count = 1;
+                    }
+                    else
+                        count++;
+                }
+
+                return results;
+            };
+            //a.AddRange(b);
+            var _a = generate(a, m1);
+            var _b = generate(b, m2);
+            var res = _a.SelectMany(x => _b, (x, y) => x.Concat(y).ToList()).ToList();
+            return res;
         }
         private int _computeDowntime(List<TimeInterval> downtimeList)
         {
@@ -386,7 +435,7 @@ namespace Tsehan
                 //    stream.WriteLine($"{res2.Count} {res2.First().AllTime} {res2.First().Downtime}");
                 //    stream.WriteLine($"{res3.Count} {res3.First().AllTime} {res3.First().Downtime}");
                 //}
-                
+
 
                 if (res2.First().AllTime != res3.First().AllTime && res2.First().Downtime != res3.First().Downtime)
                 {

@@ -15,11 +15,12 @@ class Greeter {
     }
 }
 window.onload = () => {
+    var selectedFile = document.getElementById('input');
     let el = document.getElementById("content");
     let greeter = new Greeter(el);
     // greeter.start();
 };
-function CompareTo(a, b) {
+function CompareNumbers(a, b) {
     if (a == b)
         return 0;
     return a < b ? -1 : 1;
@@ -50,21 +51,21 @@ class TimeInterval {
         this.End = end;
     }
     Compare(a, b) {
-        let cmp = CompareTo(a.Start, b.Start);
+        let cmp = CompareNumbers(a.Start, b.Start);
         if (cmp != 0)
             return cmp;
-        return CompareTo(a.End, b.End);
+        return CompareNumbers(a.End, b.End);
     }
 }
 class Solution {
-    constructor() {
-        this.CompareTo = (b) => this.Compare(this, b);
+    CompareTo(b) {
+        return this.Compare(this, b);
     }
     Compare(a, b) {
-        let cmp = CompareTo(a.AllTime, b.AllTime);
+        let cmp = CompareNumbers(a.AllTime, b.AllTime);
         if (cmp != 0)
             return cmp;
-        return CompareTo(a.Downtime, b.Downtime);
+        return CompareNumbers(a.Downtime, b.Downtime);
     }
 }
 class MacnhineItem {
@@ -114,24 +115,26 @@ class Task {
 }
 Task._id = 1;
 class JohnsonTask {
+    _updateResults(bestResults, result) {
+        if (bestResults.length == 0)
+            bestResults.push(result);
+        else {
+            var cmp = result.CompareTo(bestResults[0]);
+            if (cmp == 1)
+                return;
+            if (cmp == -1)
+                bestResults = [];
+            bestResults.push(result);
+        }
+    }
     SolveStupid(tasks, machines) {
-        let best = null;
-        let results = [];
+        let bestResults = [];
         let permutates = Permutations(tasks);
-        let id = 0;
         permutates.forEach((perm, ind, array) => {
-            id++;
             var res = this._solve(perm, machines);
-            var res = new Solution();
-            if (best == null)
-                best = res;
-            if (res.AllTime < best.AllTime && res.DowntimeList.reduce((pv, cv, ci, ar) => pv + cv, 0) > best.DowntimeList.reduce((pv, cv, ci, ar) => pv + cv, 0)) {
-                console.log();
-            }
-            results.push(res);
+            this._updateResults(bestResults, res);
         });
-        results.sort(Solution.prototype.CompareTo);
-        return results[0];
+        return bestResults;
     }
     SolveHeuristic(tasks, machines) {
         let m = machines.length;
@@ -146,23 +149,15 @@ class JohnsonTask {
             tasks.forEach(t => t.setTime(m2, t.getTime(m2) + t.getTime(machines[m - 1 - i])));
             let sorted = this._johnsonSort(tasks, m1, m2);
             let res = this._solve(sorted, machines);
-            results.push(res);
-            if (bestResults.length == 0)
-                bestResults.push(res);
-            else {
-                let cmp = res.CompareTo(bestResults[0]);
-                if (cmp == -1)
-                    continue;
-                if (cmp == 1)
-                    bestResults = [];
-                bestResults.push(res);
-            }
+            this._updateResults(bestResults, res);
         }
         tasks.forEach(t => t.RemoveMachine(m1));
         tasks.forEach(t => t.RemoveMachine(m2));
-        results.sort(Solution.prototype.Compare);
-        results.forEach(r => console.log(r.AllTime + " " + r.Downtime));
         return bestResults;
+    }
+    SolveJohnson(tasks, m1, m2) {
+        var a = this._johnsonSort(tasks, m1, m2);
+        return this._solve(a, [m1, m2]);
     }
     _solve(tasks, machines) {
         machines.forEach(m => m.Reset());
@@ -202,13 +197,9 @@ class JohnsonTask {
         return cs;
         //return new Solution() { Tasks = tasks, Downtime = _computeDowntime(downtimeList), AllTime = curTime, DowntimeList = dl };
     }
-    SolveJohnson(tasks, m1, m2) {
-        var a = this._johnsonSort(tasks, m1, m2);
-        return this._solve(a, [m1, m2]);
-    }
     _johnsonSort(tasks, m1, m2) {
         var _tasks = tasks.slice();
-        _tasks.sort((x, y) => CompareTo(Math.min(x.getTime(m1), x.getTime(m2)), (Math.min(y.getTime(m1), y.getTime(m2)))));
+        _tasks.sort((x, y) => CompareNumbers(Math.min(x.getTime(m1), x.getTime(m2)), (Math.min(y.getTime(m1), y.getTime(m2)))));
         let a = [], b = [];
         for (var i = 0; i < _tasks.length; i++)
             (_tasks[i].getTime(m1) <= _tasks[i].getTime(m2) ? a : b).push(_tasks[i]);

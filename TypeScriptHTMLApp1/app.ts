@@ -27,9 +27,10 @@ class Greeter
 
 }
 
+
 window.onload = () =>
 {
-
+    var selectedFile = document.getElementById('input')
     let el = document.getElementById("content");
     let greeter = new Greeter(el);
     // greeter.start();
@@ -46,7 +47,7 @@ interface ICompararer<T>
 {
     Compare(obj1: T, obj2: T): number;
 }
-function CompareTo(a: number, b: number): number
+function CompareNumbers(a: number, b: number): number
 {
     if (a == b)
         return 0;
@@ -92,15 +93,13 @@ class TimeInterval implements IComparable<TimeInterval>, ICompararer<TimeInterva
         this.End = end;
     }
 
-
     public CompareTo = (b: TimeInterval): number => this.Compare(this, b);
-
     public Compare(a: TimeInterval, b: TimeInterval): number
     {
-        let cmp = CompareTo(a.Start, b.Start);
+        let cmp = CompareNumbers(a.Start, b.Start);
         if (cmp != 0)
             return cmp;
-        return CompareTo(a.End, b.End);
+        return CompareNumbers(a.End, b.End);
     }
 }
 class Solution implements IComparable<Solution>
@@ -110,14 +109,16 @@ class Solution implements IComparable<Solution>
     public DowntimeList: number[];
     public Tasks: Task[];
 
-
-    public CompareTo = (b: Solution): number => this.Compare(this, b);
+    public CompareTo(b: Solution): number
+    {
+        return this.Compare(this, b);
+    }
     public Compare(a: Solution, b: Solution): number 
     {
-        let cmp = CompareTo(a.AllTime, b.AllTime);
+        let cmp = CompareNumbers(a.AllTime, b.AllTime);
         if (cmp != 0)
             return cmp;
-        return CompareTo(a.Downtime, b.Downtime);
+        return CompareNumbers(a.Downtime, b.Downtime);
     }
 }
 class MacnhineItem
@@ -192,31 +193,33 @@ class Task
 
 class JohnsonTask
 {
-    public SolveStupid(tasks: Task[], machines: Machine[]): Solution
+    private _updateResults(bestResults: Solution[], result: Solution)
     {
-        let best: Solution = null;
-        let results: Solution[] = [];
+        if (bestResults.length == 0)
+            bestResults.push(result);
+        else
+        {
+            var cmp = result.CompareTo(bestResults[0]);
+            if (cmp == 1)
+                return;
+            if (cmp == -1)
+                bestResults = [];
+            bestResults.push(result);
+        }
+    }
+
+    public SolveStupid(tasks: Task[], machines: Machine[]): Solution[]
+    {
+        let bestResults: Solution[] = [];
         let permutates = Permutations(tasks);
-        let id: number = 0;
+
         permutates.forEach((perm, ind, array) =>
         {
-            id++;
             var res = this._solve(perm, machines);
-            var res = new Solution();
-            if (best == null)
-                best = res;
-
-            if (res.AllTime < best.AllTime && res.DowntimeList.reduce((pv, cv, ci, ar) => pv + cv, 0) > best.DowntimeList.reduce((pv, cv, ci, ar) => pv + cv, 0))
-            {
-                console.log();
-            }
-            results.push(res);
+            this._updateResults(bestResults, res);
         });
 
-
-
-        results.sort(Solution.prototype.CompareTo);
-        return results[0];
+        return bestResults;
     }
     public SolveHeuristic(tasks: Task[], machines: Machine[]): Solution[]
     {
@@ -237,31 +240,23 @@ class JohnsonTask
             tasks.forEach(t => t.setTime(m2, t.getTime(m2) + t.getTime(machines[m - 1 - i])));
 
             let sorted = this._johnsonSort(tasks, m1, m2);
-            let res: Solution = this._solve(sorted, machines);
-            results.push(res);
+            let res = this._solve(sorted, machines);
 
-            if (bestResults.length == 0)
-                bestResults.push(res);
-            else
-            {
-                let cmp = res.CompareTo(bestResults[0]);
-                if (cmp == -1)
-                    continue;
-                if (cmp == 1)
-                    bestResults = [];
-                bestResults.push(res);
-            }
+            this._updateResults(bestResults, res);
         }
 
         tasks.forEach(t => t.RemoveMachine(m1));
         tasks.forEach(t => t.RemoveMachine(m2));
 
-        results.sort(Solution.prototype.Compare);
-        results.forEach(r => console.log(r.AllTime + " " + r.Downtime));
         return bestResults;
     }
+    public SolveJohnson(tasks: Task[], m1: Machine, m2: Machine): Solution
+    {
+        var a = this._johnsonSort(tasks, m1, m2);
+        return this._solve(a, [m1, m2]);
+    }
 
-    public _solve(tasks: Task[], machines: Machine[]): Solution
+    private _solve(tasks: Task[], machines: Machine[]): Solution
     {
         machines.forEach(m => m.Reset());
         let curTime = 0;
@@ -310,16 +305,10 @@ class JohnsonTask
         return cs;
         //return new Solution() { Tasks = tasks, Downtime = _computeDowntime(downtimeList), AllTime = curTime, DowntimeList = dl };
     }
-    public SolveJohnson(tasks: Task[], m1: Machine, m2: Machine): Solution
-    {
-        var a = this._johnsonSort(tasks, m1, m2);
-        return this._solve(a, [m1, m2]);
-    }
-
     private _johnsonSort(tasks: Task[], m1: Machine, m2: Machine): Task[]
     {
         var _tasks = tasks.slice();
-        _tasks.sort((x, y) => CompareTo(Math.min(x.getTime(m1), x.getTime(m2)), (Math.min(y.getTime(m1), y.getTime(m2)))));
+        _tasks.sort((x, y) => CompareNumbers(Math.min(x.getTime(m1), x.getTime(m2)), (Math.min(y.getTime(m1), y.getTime(m2)))));
         let a: Task[] = [], b: Task[] = [];
         for (var i = 0; i < _tasks.length; i++)
             (_tasks[i].getTime(m1) <= _tasks[i].getTime(m2) ? a : b).push(_tasks[i]);
