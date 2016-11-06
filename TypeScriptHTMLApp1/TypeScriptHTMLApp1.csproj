@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <ProjectGuid>{C5644116-535E-4054-AB59-B19B6CE2A122}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <OutputPath>bin</OutputPath>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <TypeScriptToolsVersion>2.0</TypeScriptToolsVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+  </PropertyGroup>
+  <ItemGroup>
+    <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="app.css" />
+    <Content Include="index.html" />
+    <Content Include="node_modules\typescript-collections\dist\lib\arrays.js" />
+    <Content Include="node_modules\typescript-collections\dist\lib\Bag.js" />
+    <Content Include="node_modules\typescript-collections\dist\lib\BSTree.js" />
+    <Content Include="node_modules\typescript-collections\dist\lib\Dictionary.js" />
+    <Content Include="node_modules\typescript-collections\dist\lib\FactoryDictionary.js" />
+    <Content Include="node_modules\typescript-collections\dist\lib\Heap.js" />
+    <Content Include="node_modules\typescript-collections\dist\lib\index.js" />
+    <Content Include="node_modules\typescript-collections\dist\lib\LinkedDictionary.js" />
+    <Content Include="node_modules\typescript-collections\dist\lib\LinkedList.js" />
+    <Content Include="node_modules\typescript-collections\dist\lib\MultiDictionary.js" />
+    <Content Include="node_modules\typescript-collections\dist\lib\MultiRootTree.js" />
+    <Content Include="node_modules\typescript-collections\dist\lib\PriorityQueue.js" />
+    <Content Include="node_modules\typescript-collections\dist\lib\Queue.js" />
+    <Content Include="node_modules\typescript-collections\dist\lib\Set.js" />
+    <Content Include="node_modules\typescript-collections\dist\lib\Stack.js" />
+    <Content Include="node_modules\typescript-collections\dist\lib\umd.js" />
+    <Content Include="node_modules\typescript-collections\dist\lib\umd.min.js" />
+    <Content Include="node_modules\typescript-collections\dist\lib\util.js" />
+    <Content Include="web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="app.ts" />
+    <TypeScriptCompile Include="node_modules\typescript-collections\dist\lib\arrays.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript-collections\dist\lib\Bag.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript-collections\dist\lib\BSTree.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript-collections\dist\lib\Dictionary.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript-collections\dist\lib\FactoryDictionary.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript-collections\dist\lib\Heap.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript-collections\dist\lib\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript-collections\dist\lib\LinkedDictionary.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript-collections\dist\lib\LinkedList.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript-collections\dist\lib\MultiDictionary.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript-collections\dist\lib\MultiRootTree.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript-collections\dist\lib\PriorityQueue.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript-collections\dist\lib\Queue.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript-collections\dist\lib\Set.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript-collections\dist\lib\Stack.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript-collections\dist\lib\util.d.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="packages.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="package.json" />
+    <Content Include="node_modules\typescript-collections\.npmignore" />
+    <Content Include="node_modules\typescript-collections\dist\lib\arrays.js.map" />
+    <Content Include="node_modules\typescript-collections\dist\lib\Bag.js.map" />
+    <Content Include="node_modules\typescript-collections\dist\lib\BSTree.js.map" />
+    <Content Include="node_modules\typescript-collections\dist\lib\Dictionary.js.map" />
+    <Content Include="node_modules\typescript-collections\dist\lib\FactoryDictionary.js.map" />
+    <Content Include="node_modules\typescript-collections\dist\lib\Heap.js.map" />
+    <Content Include="node_modules\typescript-collections\dist\lib\index.js.map" />
+    <Content Include="node_modules\typescript-collections\dist\lib\LinkedDictionary.js.map" />
+    <Content Include="node_modules\typescript-collections\dist\lib\LinkedList.js.map" />
+    <Content Include="node_modules\typescript-collections\dist\lib\MultiDictionary.js.map" />
+    <Content Include="node_modules\typescript-collections\dist\lib\MultiRootTree.js.map" />
+    <Content Include="node_modules\typescript-collections\dist\lib\PriorityQueue.js.map" />
+    <Content Include="node_modules\typescript-collections\dist\lib\Queue.js.map" />
+    <Content Include="node_modules\typescript-collections\dist\lib\Set.js.map" />
+    <Content Include="node_modules\typescript-collections\dist\lib\Stack.js.map" />
+    <Content Include="node_modules\typescript-collections\dist\lib\util.js.map" />
+    <Content Include="node_modules\typescript-collections\package.json" />
+    <Content Include="node_modules\typescript-collections\README.md" />
+    <Content Include="node_modules\typescript-collections\typings.json" />
+    <None Include="web.Debug.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+    <None Include="web.Release.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>TypeScriptHTMLApp1</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets')" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>53655</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:53655/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
+    <TypeScriptSourceMap>true</TypeScriptSourceMap>
+    <TypeScriptTarget>ES6</TypeScriptTarget>
+    <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
+    <TypeScriptModuleKind>CommonJS</TypeScriptModuleKind>
+    <TypeScriptOutFile />
+    <TypeScriptOutDir />
+    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
+    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
+    <TypeScriptSourceMap>false</TypeScriptSourceMap>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
+</Project>

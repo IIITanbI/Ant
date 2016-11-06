@@ -70,7 +70,7 @@ namespace Tsehan
         }
     }
 
-    struct TimeInterval
+    struct TimeInterval : IComparable<TimeInterval>
     {
         public int Start { get; set; }
         public int End { get; set; }
@@ -79,31 +79,39 @@ namespace Tsehan
             this.Start = start;
             this.End = end;
         }
+
+        public int CompareTo(TimeInterval b)
+        {
+            int cmp = Start.CompareTo(b.Start);
+            if (cmp != 0)
+                return cmp;
+            return End.CompareTo(b.End);
+        }
     }
-    class Solution
+    class Solution : IComparable<Solution>
     {
         public int AllTime { get; set; }
         public int Downtime { get; set; }
         public List<int> DowntimeList { get; set; }
-        public List<List<Task>> Tasks { get; set; }
+        public List<Task> Tasks { get; set; }
 
-        public static int Comparator(Solution x, Solution y)
+        public int CompareTo(Solution b)
         {
-            int cmp = x.AllTime.CompareTo(y.AllTime);
+            int cmp = AllTime.CompareTo(b.AllTime);
             if (cmp != 0)
                 return cmp;
-            return x.Downtime.CompareTo(y.Downtime);
+            return Downtime.CompareTo(b.Downtime);
         }
     }
     class Machine
     {
-        class Temp
+        class MacnhineItem
         {
             public Task Task { get; set; } = null;
             public int EndTime { get; set; } = -1;
             public int ArrivalTime { get; set; } = -1;
         }
-        Queue<Temp> q = new Queue<Temp>();
+        Queue<MacnhineItem> q = new Queue<MacnhineItem>();
         public List<TimeInterval> DowntimeList = new List<TimeInterval>();
 
         public bool IsEmpty => q.Count == 0;
@@ -116,11 +124,11 @@ namespace Tsehan
         }
         public void AddTask(Task task, int time)
         {
-            var temp = new Temp();
+            var temp = new MacnhineItem();
             temp.Task = task;
             temp.ArrivalTime = time;
 
-            if (q.Count == 0)
+            if (IsEmpty)
             {
                 temp.EndTime = temp.ArrivalTime + task[this];
 
@@ -130,15 +138,15 @@ namespace Tsehan
 
             q.Enqueue(temp);
         }
-        public Task RemoveTask()
+        public Task RemoveCurrentTask()
         {
-            Temp temp = q.Dequeue();
+            MacnhineItem temp = q.Dequeue();
             Task task = temp.Task;
             _lastTime = temp.EndTime;
 
-            if (q.Count > 0)
+            if (!IsEmpty)
             {
-                Temp _temp = q.Peek();
+                MacnhineItem _temp = q.Peek();
                 _temp.EndTime = temp.EndTime + _temp.Task[this];
             }
 
@@ -174,33 +182,53 @@ namespace Tsehan
         }
     }
 
-    class FlowTask
+    class JohnsonTask
     {
-        public Solution SolveStupid(List<Task> tasks, List<Machine> machines)
+        private void _updateResults(List<Solution> bestResults, Solution result)
         {
-            Solution best = null;
+            if (bestResults.Count == 0)
+                bestResults.Add(result);
+            else
+            {
+                int cmp = result.CompareTo(bestResults.First());
+                if (cmp == 1)
+                    return;
+                if (cmp == -1)
+                    bestResults.Clear();
+                bestResults.Add(result);
+            }
+        }
 
+        public List<Solution> SolveStupid(List<Task> tasks, List<Machine> machines)
+        {
             List<Solution> results = new List<Solution>();
+            List<Solution> bestResults = new List<Solution>();
+
             var permutates = tasks.Permute().Select(ie => ie.ToList()).ToList();
             int id = 0;
             foreach (var perm in permutates)
             {
                 id++;
                 var res = _solve(perm, machines);
-                if (best == null)
-                    best = res;
-                
-                if (res.AllTime < best.AllTime && res.DowntimeList.Sum() > best.DowntimeList.Sum())
-                {
-                    Console.WriteLine();
-                }
                 results.Add(res);
+
+                if (bestResults.Count == 0)
+                    bestResults.Add(res);
+                else
+                {
+                    int cmp = res.CompareTo(bestResults.First());
+                    if (cmp == 1)
+                        continue;
+                    if (cmp == -1)
+                        bestResults.Clear();
+                    bestResults.Add(res);
+                }
             }
 
-            results.Sort(Solution.Comparator);
-            return results.First();
+            //results.Sort();
+            return bestResults;
         }
-        public Solution SolveHeuristic(List<Task> tasks, List<Machine> machines)
+        public List<Solution> SolveHeuristic(List<Task> tasks, List<Machine> machines)
         {
             int m = machines.Count;
 
@@ -210,23 +238,22 @@ namespace Tsehan
             tasks.ForEach(t => t[m1] = 0);
             tasks.ForEach(t => t[m2] = 0);
 
-            List<Solution> results = new List<Solution>();
+            List<Solution> bestResults = new List<Solution>();
+
             for (int i = 0; i < m - 1; i++)
             {
                 tasks.ForEach(t => t[m1] += t[machines[i]]);
                 tasks.ForEach(t => t[m2] += t[machines[m - 1 - i]]);
 
                 var sorted = _johnsonSort(tasks, m1, m2);
-                Solution solution = _solve(sorted, machines);
-                results.Add(solution);
+                Solution res = _solve(sorted, machines);
+                _updateResults(bestResults, res);
             }
 
             tasks.ForEach(t => t.RemoveMachine(m1));
             tasks.ForEach(t => t.RemoveMachine(m2));
 
-            results.Sort(Solution.Comparator);
-            results.ForEach(r => Console.WriteLine(r.AllTime + " " + r.Downtime));
-            return results.First();
+            return bestResults;
         }
         public Solution SolveJohnson(List<Task> tasks, Machine m1, Machine m2)
         {
@@ -260,36 +287,21 @@ namespace Tsehan
                         machine = m;
                 });
 
-                if (machine != null)
-                {
-                    if (machine.EndTime == -1) throw new Exception("end time == -1");
-                    curTime = machine.EndTime;
-                    var task = machine.RemoveTask();
-
-                    var index = machines.IndexOf(machine);
-
-                    //end
-                    if (index == machines.Count - 1)
-                    {
-                        LastTaskEnd++;
-                    }
-                    else
-                    {
-                        Machine next = machines[index + 1];
-                        next.AddTask(task, curTime);
-                    }
-                }
+                curTime = machine.EndTime;
+                var task = machine.RemoveCurrentTask();
+                var index = machines.IndexOf(machine);
+                //end
+                if (index == machines.Count - 1)
+                    LastTaskEnd++;
                 else
-                {
-                    throw new Exception("machine is null");
-                }
+                    machines[index + 1].AddTask(task, curTime);
             }
             List<TimeInterval> downtimeList = new List<TimeInterval>();
             machines.ForEach(m => downtimeList.AddRange(m.DowntimeList));
 
             List<int> dl = new List<int>();
             machines.ForEach(m => dl.Add(_computeDowntime(m.DowntimeList)));
-            return new Solution() { Tasks = new List<List<Task>> { tasks }, Downtime = _computeDowntime(downtimeList), AllTime = curTime, DowntimeList = dl };
+            return new Solution() { Tasks = tasks, Downtime = _computeDowntime(downtimeList), AllTime = curTime, DowntimeList = dl };
         }
         private List<Task> _johnsonSort(List<Task> tasks, Machine m1, Machine m2)
         {
@@ -305,13 +317,7 @@ namespace Tsehan
         }
         private int _computeDowntime(List<TimeInterval> downtimeList)
         {
-            downtimeList.Sort((a, b) =>
-            {
-                int cmp = a.Start.CompareTo(b.Start);
-                if (cmp != 0)
-                    return cmp;
-                return a.End.CompareTo(b.End);
-            });
+            downtimeList.Sort();
 
             int res = 0;
             int last = 0;
@@ -329,7 +335,7 @@ namespace Tsehan
         {
             Machine m1 = new Machine();
             Machine m2 = new Machine();
-            List<Task> mv = new List<Task>();
+            List<Task> tasks = new List<Task>();
             List<Machine> machines = new List<Machine>();
             Random r = new Random();
             //for (int i = 0; i < 10; i++)
@@ -344,36 +350,49 @@ namespace Tsehan
             machines.Add(m2);
 
             var lines = File.ReadAllLines("data.txt");
-            int m = 5;
-            int n = 6;
 
-
-            mv = new List<Task>();
-            machines = new List<Machine>();
-
-            for (int i = 0; i < m; i++)
-                machines.Add(new Machine());
-
-
-            foreach (var line in lines)
+            int id = 0;
+            while (true)
             {
-                if (n == 0)
-                    break;
-                n--;
+                int m = r.Next(2, 10);
+                int n = r.Next(2, 6);
+                m = 2;
+                tasks = new List<Task>();
+                machines = new List<Machine>();
 
-                var split = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                Task t = new Task();
                 for (int i = 0; i < m; i++)
-                    // t[machines[i]] = int.Parse(split[i]);
-                    t[machines[i]] = r.Next(1, 20);
-                mv.Add(t);
+                    machines.Add(new Machine());
+
+                for (int i = 0; i < n; i++)
+                {
+                    Task t = new Task();
+                    for (int j = 0; j < m; j++)
+                        // t[machines[i]] = int.Parse(split[i]);
+                        t[machines[j]] = r.Next(1, 100);
+                    tasks.Add(t);
+                }
+                var res2 = new JohnsonTask().SolveHeuristic(tasks, machines);
+                var res3 = new JohnsonTask().SolveStupid(tasks, machines);
+
+                //using (StreamWriter stream = new StreamWriter(File.Create($"{id++}.txt")))
+                //{
+                //    stream.WriteLine($"{n} {m}");
+                //    for (int i = 0; i < n; i++)
+                //    {
+                //        for (int j = 0; j < m; j++)
+                //            stream.Write($"{tasks[i][machines[j]]} ");
+                //        stream.WriteLine();
+                //    }
+                //    stream.WriteLine($"{res2.Count} {res2.First().AllTime} {res2.First().Downtime}");
+                //    stream.WriteLine($"{res3.Count} {res3.First().AllTime} {res3.First().Downtime}");
+                //}
+                
+
+                if (res2.First().AllTime != res3.First().AllTime && res2.First().Downtime != res3.First().Downtime)
+                {
+
+                }
             }
-
-            //var res1 = new FlowTask().SolveJonhson(mv, m1, m2);
-            //var res2 = new FlowTask().SolveHeuristic(mv, machines);
-            var res3 = new FlowTask().SolveStupid(mv, machines);
-            //var res4 = new FlowTask()._solve(mv, machines);
-
             //var res = list.Permute().ToList();
             //var res = list.Permute().Select(ie => ie.ToList()).ToList();
             //Console.WriteLine(res.Count);
