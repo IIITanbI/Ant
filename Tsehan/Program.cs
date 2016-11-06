@@ -248,19 +248,6 @@ namespace Tsehan
 
             return bestResults;
         }
-        public List<Solution> SolveJohnson(List<Task> tasks, Machine m1, Machine m2)
-        {
-            List<Solution> bestResults = new List<Solution>();
-
-            var sortedCombintaions = _johnsonSort(tasks, m1, m2);
-            foreach (var combination in sortedCombintaions)
-            {
-                var res = _solve(combination, new List<Machine>() { m1, m2 });
-                _updateResults(bestResults, res);
-            }
-
-            return bestResults;
-        }
 
         public Solution _solve(List<Task> tasks, List<Machine> machines)
         {
@@ -313,7 +300,7 @@ namespace Tsehan
                 (_tasks[i][m1] <= _tasks[i][m2] ? a : b).Add(_tasks[i]);
             b.Reverse();
 
-            Func<List<Task>, Machine, List<List<Task>>> generate = (list, macnhine) =>
+            Func<List<Task>, Machine, List<List<Task>>> generate = (list, machine) =>
             {
                 List<List<Task>> results = new List<List<Task>>();
                 var _originalCopy = list.ToList();
@@ -322,11 +309,11 @@ namespace Tsehan
                 if (_originalCopy.Count == 0)
                     return results;
 
-                int current = _originalCopy[0][macnhine];
+                int current = _originalCopy[0][machine];
                 int count = 1;
                 for (int i = 1; i <= _originalCopy.Count; i++)
                 {
-                    if (i == _originalCopy.Count || _originalCopy[i][macnhine] != current)
+                    if (i == _originalCopy.Count || _originalCopy[i][machine] != current)
                     {
                         int from = i - count;
                         var range = _originalCopy.GetRange(from, count);
@@ -344,12 +331,12 @@ namespace Tsehan
                             }
                         }
                         results.Clear();
-                        results.AddRange(temp);
+                        results = temp;
 
                         if (i == _originalCopy.Count)
                             break;
 
-                        current = _originalCopy[i][macnhine];
+                        current = _originalCopy[i][machine];
                         count = 1;
                     }
                     else

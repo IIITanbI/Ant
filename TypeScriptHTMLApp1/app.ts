@@ -193,21 +193,6 @@ class Task
 
 class JohnsonTask
 {
-    private _updateResults(bestResults: Solution[], result: Solution)
-    {
-        if (bestResults.length == 0)
-            bestResults.push(result);
-        else
-        {
-            var cmp = result.CompareTo(bestResults[0]);
-            if (cmp == 1)
-                return;
-            if (cmp == -1)
-                bestResults = [];
-            bestResults.push(result);
-        }
-    }
-
     public SolveStupid(tasks: Task[], machines: Machine[]): Solution[]
     {
         let bestResults: Solution[] = [];
@@ -249,11 +234,6 @@ class JohnsonTask
         tasks.forEach(t => t.RemoveMachine(m2));
 
         return bestResults;
-    }
-    public SolveJohnson(tasks: Task[], m1: Machine, m2: Machine): Solution
-    {
-        var a = this._johnsonSort(tasks, m1, m2);
-        return this._solve(a, [m1, m2]);
     }
 
     private _solve(tasks: Task[], machines: Machine[]): Solution
@@ -313,6 +293,53 @@ class JohnsonTask
         for (var i = 0; i < _tasks.length; i++)
             (_tasks[i].getTime(m1) <= _tasks[i].getTime(m2) ? a : b).push(_tasks[i]);
         b.reverse();
+
+        let generate = (list: Task[], machine: Machine): Task[][] =>
+        {
+            let results: Task[][] = [[]];
+            var _originalCopy = list.slice();
+            results.push(_originalCopy);
+
+            if (_originalCopy.length == 0)
+                return results;
+
+            var current = _originalCopy[0].getTime(machine);
+            var count = 1;
+            for (var i = 1; i <= _originalCopy.length; i++)
+            {
+                if (i == _originalCopy.length || _originalCopy[i].getTime(machine) != current)
+                {
+                    var from = i - count;
+                    var range = _originalCopy.slice(from, from + count);
+                    var permutates = Permutations(range);
+
+                    let temp: Task[][] = [[]];
+
+                    for (var original of results)
+                    {
+                        for (var permute of permutates)
+                        {
+                            var copy = original.slice();
+                            copy.splice(from, count, ...permute);
+                            temp.push(copy);
+                        }
+                    }
+
+                    results = [[]];
+                    results = temp;
+
+                    if (i == _originalCopy.length)
+                        break;
+
+                    current = _originalCopy[i].getTime(machine);
+                    count = 1;
+                }
+                else
+                    count++;
+            }
+
+            return results;
+        };
         a = a.concat(b);
 
         return a;
@@ -329,6 +356,20 @@ class JohnsonTask
             last = Math.max(last, ti.End);
         });
         return res;
+    }
+    private _updateResults(bestResults: Solution[], result: Solution)
+    {
+        if (bestResults.length == 0)
+            bestResults.push(result);
+        else
+        {
+            var cmp = result.CompareTo(bestResults[0]);
+            if (cmp == 1)
+                return;
+            if (cmp == -1)
+                bestResults = [];
+            bestResults.push(result);
+        }
     }
 }
 
