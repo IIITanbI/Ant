@@ -135,8 +135,15 @@ class JohnsonTask {
         for (var i = 0; i < m - 1; i++) {
             tasks.forEach(t => t.setTime(m1, t.getTime(m1) + t.getTime(machines[i])));
             tasks.forEach(t => t.setTime(m2, t.getTime(m2) + t.getTime(machines[m - 1 - i])));
-            let sorted = this._johnsonSort(tasks, m1, m2);
-            let res = this._solve(sorted, machines);
+            var sortedCombintaions = this._johnsonSort(tasks, m1, m2);
+            var temp = this._solve(sortedCombintaions[0], machines);
+            for (var combintation of sortedCombintaions) {
+                var res = this._solve(combintation, machines);
+                if (temp.CompareTo(res) != 0) {
+                    console.warn("warning");
+                }
+                this._updateResults(bestResults, res);
+            }
             this._updateResults(bestResults, res);
         }
         tasks.forEach(t => t.RemoveMachine(m1));
@@ -221,8 +228,17 @@ class JohnsonTask {
             }
             return results;
         };
-        a = a.concat(b);
-        return a;
+        // a = a.concat(b);
+        var _a = generate(a, m1);
+        var _b = generate(b, m2);
+        var res = [[]];
+        for (var one of _a) {
+            for (var two of _b) {
+                var copy = one.concat(two);
+                res.push(copy);
+            }
+        }
+        return res;
     }
     _computeDowntime(downtimeList) {
         downtimeList.sort(TimeInterval.prototype.Compare);

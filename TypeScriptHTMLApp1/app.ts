@@ -102,7 +102,7 @@ class TimeInterval implements IComparable<TimeInterval>, ICompararer<TimeInterva
         return CompareNumbers(a.End, b.End);
     }
 }
-class Solution implements IComparable<Solution>
+class Solution implements IComparable<Solution>, ICompararer<Solution>
 {
     public AllTime: number;
     public Downtime: number;
@@ -224,9 +224,17 @@ class JohnsonTask
             tasks.forEach(t => t.setTime(m1, t.getTime(m1) + t.getTime(machines[i])));
             tasks.forEach(t => t.setTime(m2, t.getTime(m2) + t.getTime(machines[m - 1 - i])));
 
-            let sorted = this._johnsonSort(tasks, m1, m2);
-            let res = this._solve(sorted, machines);
-
+            var sortedCombintaions = this._johnsonSort(tasks, m1, m2);
+            var temp = this._solve(sortedCombintaions[0], machines);
+            for(var combintation of sortedCombintaions)
+            {
+                var res = this._solve(combintation, machines);
+                if (temp.CompareTo(res) != 0)
+                {
+                    console.warn("warning");
+                }
+                this._updateResults(bestResults, res);
+            }
             this._updateResults(bestResults, res);
         }
 
@@ -285,7 +293,7 @@ class JohnsonTask
         return cs;
         //return new Solution() { Tasks = tasks, Downtime = _computeDowntime(downtimeList), AllTime = curTime, DowntimeList = dl };
     }
-    private _johnsonSort(tasks: Task[], m1: Machine, m2: Machine): Task[]
+    private _johnsonSort(tasks: Task[], m1: Machine, m2: Machine): Task[][]
     {
         var _tasks = tasks.slice();
         _tasks.sort((x, y) => CompareNumbers(Math.min(x.getTime(m1), x.getTime(m2)), (Math.min(y.getTime(m1), y.getTime(m2)))));
@@ -340,9 +348,22 @@ class JohnsonTask
 
             return results;
         };
-        a = a.concat(b);
+       // a = a.concat(b);
 
-        return a;
+        var _a = generate(a, m1);
+        var _b = generate(b, m2);
+
+        var res: Task[][] = [[]];
+        for (var one of _a)
+        {
+            for (var two of _b)
+            {
+                var copy = one.concat(two);
+                res.push(copy);
+            }
+        }
+
+        return res;
     }
     private _computeDowntime(downtimeList: TimeInterval[]): number
     {
