@@ -388,7 +388,8 @@ namespace Tsehan
             var lines = File.ReadAllLines("data.txt");
 
             int id = 0;
-            while (true)
+            int test = 1000;
+            while (test-- > 0)
             {
                 int m = r.Next(2, 10);
                 int n = r.Next(2, 6);
@@ -410,18 +411,18 @@ namespace Tsehan
                 var res2 = new JohnsonTask().SolveHeuristic(tasks, machines);
                 var res3 = new JohnsonTask().SolveStupid(tasks, machines);
 
-                //using (StreamWriter stream = new StreamWriter(File.Create($"{id++}.txt")))
-                //{
-                //    stream.WriteLine($"{n} {m}");
-                //    for (int i = 0; i < n; i++)
-                //    {
-                //        for (int j = 0; j < m; j++)
-                //            stream.Write($"{tasks[i][machines[j]]} ");
-                //        stream.WriteLine();
-                //    }
-                //    stream.WriteLine($"{res2.Count} {res2.First().AllTime} {res2.First().Downtime}");
-                //    stream.WriteLine($"{res3.Count} {res3.First().AllTime} {res3.First().Downtime}");
-                //}
+                using (StreamWriter stream = new StreamWriter(File.Create($"{id++}.txt")))
+                {
+                    stream.WriteLine($"{n} {m}");
+                    for (int i = 0; i < n; i++)
+                    {
+                        for (int j = 0; j < m; j++)
+                            stream.Write($"{tasks[i][machines[j]]} ");
+                        stream.WriteLine();
+                    }
+                    stream.WriteLine($"{res2.Count} {res2.First().AllTime} {res2.First().Downtime}");
+                    stream.WriteLine($"{res3.Count} {res3.First().AllTime} {res3.First().Downtime}");
+                }
 
 
                 if (res2.First().AllTime != res3.First().AllTime && res2.First().Downtime != res3.First().Downtime)

@@ -88,6 +88,9 @@
     <Content Include="node_modules\typescript-collections\package.json" />
     <Content Include="node_modules\typescript-collections\README.md" />
     <Content Include="node_modules\typescript-collections\typings.json" />
+    <Content Include="README.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>

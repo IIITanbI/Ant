@@ -1,25 +1,28 @@
 "use strict";
-class Greeter {
-    constructor(element) {
-        this.element = element;
-        this.element.innerHTML += "The time is: ";
-        this.span = document.createElement("span");
-        this.element.appendChild(this.span);
-        this.span.innerText = new Date().toUTCString();
-    }
-    start() {
-        this.timerToken = setInterval(() => this.span.innerHTML = new Date().toUTCString(), 500);
-    }
-    stop() {
-        clearTimeout(this.timerToken);
-    }
-}
 window.onload = () => {
-    var selectedFile = document.getElementById('input');
-    let el = document.getElementById("content");
-    let greeter = new Greeter(el);
-    // greeter.start();
 };
+function buttonClick() {
+    //for (var i = 0; i < 1; i++) {
+    var oReq = new XMLHttpRequest();
+    oReq.addEventListener("load", function () {
+        let content = this.responseText;
+        var arrayOfLines = content.match(/[^\r\n]+/g);
+        for (var match of arrayOfLines) {
+            console.log(match);
+        }
+        console.log("load");
+    });
+    oReq.addEventListener("error", function () {
+        console.log("error");
+    });
+    oReq.addEventListener("abort", function () {
+        console.log("abort");
+    });
+    let file = 0 + ".txt";
+    oReq.open("GET", "http://yourdomain.com:8887/" + file);
+    oReq.send();
+    //}
+}
 function CompareNumbers(a, b) {
     if (a == b)
         return 0;
